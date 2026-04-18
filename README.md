@@ -184,6 +184,7 @@ Esse script cria pool/provider, service account, bindings IAM e variaveis do Git
 Workflow pronto:
 
 - `.github/workflows/terraform-cicd.yml`
+- `.github/workflows/deploy-site.yml` (deploy de codigo/conteudo sem Terraform, com invalidação de CDN)
 
 Variaveis obrigatorias no repo GitHub (`Settings > Secrets and variables > Actions > Variables`):
 

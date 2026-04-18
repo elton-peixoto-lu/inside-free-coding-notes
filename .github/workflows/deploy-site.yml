@@ -1,0 +1,99 @@
+name: Deploy Site (Code Only + CDN Invalidation)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "shadow-cljs.edn"
+      - "deps.edn"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_REGION: us-central1
+  SITE_BUCKET: labs-insidefreecoding-com-br-prod-461714
+  URL_MAP_NAME: inside-free-coding-notes-url-map
+  SITE_HOST: labs.insidefreecoding.com.br
+
+jobs:
+  deploy:
+    name: Build and Deploy Content
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@13.4
+        with:
+          cli: latest
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Build static assets
+        run: npx shadow-cljs release app
+
+      - name: Authenticate to Google Cloud (WIF)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Sync static files to private GCS bucket
+        run: |
+          gcloud storage rsync --recursive --delete-unmatched-destination-objects public "gs://${SITE_BUCKET}"
+
+      - name: Update cache headers for content classes
+        run: |
+          gcloud storage objects update "gs://${SITE_BUCKET}/index.html" --cache-control="no-store,max-age=0"
+          gcloud storage objects update "gs://${SITE_BUCKET}/content/index.edn" --cache-control="no-store,max-age=0"
+
+          while read -r obj; do
+            gcloud storage objects update "${obj}" --cache-control="no-store,max-age=0"
+          done < <(gcloud storage ls "gs://${SITE_BUCKET}/content/articles/**")
+
+          while read -r obj; do
+            gcloud storage objects update "${obj}" --cache-control="public,max-age=300"
+          done < <(gcloud storage ls "gs://${SITE_BUCKET}/js/**")
+
+          while read -r obj; do
+            gcloud storage objects update "${obj}" --cache-control="public,max-age=300"
+          done < <(gcloud storage ls "gs://${SITE_BUCKET}/styles/**")
+
+          while read -r obj; do
+            gcloud storage objects update "${obj}" --cache-control="public,max-age=86400"
+          done < <(gcloud storage ls "gs://${SITE_BUCKET}/assets/**")
+
+      - name: Invalidate Cloud CDN cache
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache "${URL_MAP_NAME}" --path="/index.html" --host="${SITE_HOST}" --async
+          gcloud compute url-maps invalidate-cdn-cache "${URL_MAP_NAME}" --path="/js/*" --host="${SITE_HOST}" --async
+          gcloud compute url-maps invalidate-cdn-cache "${URL_MAP_NAME}" --path="/styles/*" --host="${SITE_HOST}" --async
+          gcloud compute url-maps invalidate-cdn-cache "${URL_MAP_NAME}" --path="/content/*" --host="${SITE_HOST}" --async
+          gcloud compute url-maps invalidate-cdn-cache "${URL_MAP_NAME}" --path="/assets/*" --host="${SITE_HOST}" --async

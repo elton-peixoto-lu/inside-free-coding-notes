@@ -4,24 +4,14 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "src/**"
-      - "public/**"
       - "infra/terraform/**"
-      - "shadow-cljs.edn"
-      - "deps.edn"
-      - "package.json"
-      - "package-lock.json"
+      - "cloudrun/**"
       - ".github/workflows/terraform-cicd.yml"
   push:
     branches: [main]
     paths:
-      - "src/**"
-      - "public/**"
       - "infra/terraform/**"
-      - "shadow-cljs.edn"
-      - "deps.edn"
-      - "package.json"
-      - "package-lock.json"
+      - "cloudrun/**"
       - ".github/workflows/terraform-cicd.yml"
   workflow_dispatch:
 
