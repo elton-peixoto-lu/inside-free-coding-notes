@@ -342,6 +342,23 @@ figcaption {
   gap: 0.5rem;
 }
 
+.drift-timeline {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.9rem;
+}
+
+.drift-timeline h2 {
+  margin-top: 0;
+}
+
+.drift-timeline ol {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
 .drift-severity-dot {
   display: inline-block;
   width: 0.75rem;

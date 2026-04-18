@@ -6,6 +6,9 @@
 (rf/reg-sub :drift/filters :<- [:drift/raw] (fn [drift _] (:filters drift)))
 (rf/reg-sub :drift/animation-paused? :<- [:drift/raw] (fn [drift _] (:animation-paused? drift)))
 (rf/reg-sub :drift/camera-reset-token :<- [:drift/raw] (fn [drift _] (:camera-reset-token drift)))
+(rf/reg-sub :drift/runtime-running? :<- [:drift/raw] (fn [drift _] (get-in drift [:runtime :running?])))
+(rf/reg-sub :drift/tick :<- [:drift/raw] (fn [drift _] (get-in drift [:runtime :tick])))
+(rf/reg-sub :drift/timeline :<- [:drift/raw] (fn [drift _] (get-in drift [:timeline :entries])))
 
 (rf/reg-sub
  :drift/nodes
@@ -91,4 +94,5 @@
       :critical-count critical
       :high-risk-count high-risk
       :hotspot-count (count hotspots)
-      :avg-drift avg-drift})))
+      :avg-drift avg-drift
+      :reconcile-progress (* 100 (- 1 avg-drift))})))

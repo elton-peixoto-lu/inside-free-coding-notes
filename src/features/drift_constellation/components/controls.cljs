@@ -24,7 +24,7 @@
       [:option {:value (name opt)}
        (if (= opt :all) "Todos" (name opt))])]])
 
-(defn action-controls [paused?]
+(defn action-controls [paused? running? tick]
   [:div.drift-controls__row
    [:button.controls__button
     {:type "button"
@@ -34,7 +34,13 @@
     {:type "button"
      :aria-pressed paused?
      :on-click #(rf/dispatch [:drift/toggle-animation])}
-    (if paused? "Retomar animacao" "Pausar animacao")]])
+    (if paused? "Retomar animacao" "Pausar animacao")]
+   [:button.controls__button
+    {:type "button"
+     :aria-pressed running?
+     :on-click #(rf/dispatch [:drift/toggle-runtime])}
+    (if running? "Parar reconcile" "Iniciar reconcile")]
+   [:span.controls__status (str "Tick: " tick)]])
 
 (defn legend [items]
   [:ul.drift-legend {:aria-label "Legenda de severidade"}

@@ -19,4 +19,8 @@
            :filters {:severity :all
                      :type :all}
            :animation-paused? false
-           :camera-reset-token 0}})
+           :camera-reset-token 0
+           :runtime {:running? false
+                     :tick 0}
+           :timeline {:entries []
+                      :window-size 36}}})

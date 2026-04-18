@@ -1,5 +1,6 @@
 (ns features.drift-constellation.page
-  (:require [re-frame.core :as rf]
+  (:require [clojure.string :as str]
+            [re-frame.core :as rf]
             [reagent.core :as r]
             [features.drift-constellation.components.controls :as controls]
             [features.drift-constellation.components.panel :as panel]
@@ -61,10 +62,16 @@
         summary* (rf/subscribe [:drift/summary])
         type-options* (rf/subscribe [:drift/type-options])
         paused?* (rf/subscribe [:drift/animation-paused?])
+        running?* (rf/subscribe [:drift/runtime-running?])
+        tick* (rf/subscribe [:drift/tick])
+        timeline* (rf/subscribe [:drift/timeline])
         reset-token* (rf/subscribe [:drift/camera-reset-token])]
     (r/create-class
      {:display-name "drift-constellation-page"
-      :component-did-mount #(rf/dispatch [:drift/init])
+      :component-did-mount (fn []
+                             (rf/dispatch [:drift/init])
+                             (rf/dispatch [:drift/start-runtime]))
+      :component-will-unmount #(rf/dispatch [:drift/stop-runtime])
       :reagent-render
       (fn []
         (let [filters @filters*
@@ -73,6 +80,9 @@
               summary @summary*
               type-options @type-options*
               paused? @paused?*
+              running? @running?*
+              tick @tick*
+              timeline @timeline*
               reset-token @reset-token*]
           [:section.drift-page
            [:header
@@ -83,12 +93,25 @@
             [:p [:strong "Criticos: "] (:critical-count summary)]
             [:p [:strong "Hotspots: "] (:hotspot-count summary)]
             [:p [:strong "Risco alto: "] (:high-risk-count summary)]
-            [:p [:strong "Drift medio: "] (.toFixed (:avg-drift summary) 2)]]
+            [:p [:strong "Drift medio: "] (.toFixed (:avg-drift summary) 2)]
+            [:p [:strong "Convergencia: "] (.toFixed (:reconcile-progress summary) 1) "%"]]
            [:section.drift-layout
             [drift-canvas {:reset-token reset-token}]
             [panel/drift-side-panel {:node selected-node}]]
            [:section.drift-controls {:aria-label "Controles de visualizacao"}
             [controls/severity-controls (:severity filters)]
             [controls/type-controls (:type filters) type-options]
-            [controls/action-controls paused?]
-            [controls/legend legend-items]]]))})))
+            [controls/action-controls paused? running? tick]
+            [controls/legend legend-items]]
+           [:section.drift-timeline {:aria-label "Reconcile Timeline"}
+            [:h2 "Reconcile Timeline"]
+            (if (seq timeline)
+              [:ol
+               (for [{:keys [id tick label changed-keys drift-score]} timeline]
+                 ^{:key id}
+                 [:li
+                  [:strong (str "T" tick " - " label)]
+                  [:span " | campos: "
+                   (if (= changed-keys ["scan"]) "scan" (str/join ", " changed-keys))]
+                  [:span " | drift: " (.toFixed (or drift-score 0) 2)]])]
+              [:p "Aguardando eventos de reconcile..."])]]))})))
