@@ -105,8 +105,18 @@ Hash routing simples:
 - `#/artigos`
 - `#/artigos/:slug`
 - `#/experimentos`
+- `#/experimentos/drift-constellation`
 - `#/acessibilidade`
 - `#/contato`
+
+## Drift Constellation
+
+A feature foi criada em `src/features/drift_constellation` e separa:
+
+- pagina (`page.cljs`)
+- estado (`events.cljs`, `subs.cljs`, `data.cljs`)
+- UI (`components/*`)
+- renderizacao 3D com Three.js (`scene/*`)
 
 ## Acessibilidade implementada
 

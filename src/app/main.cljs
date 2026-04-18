@@ -1,5 +1,8 @@
 (ns app.main
   (:require [a11y.preferences :as a11y]
+            [features.drift-constellation.events]
+            [features.drift-constellation.page :as drift-constellation]
+            [features.drift-constellation.subs]
             [re-frame.core :as rf]
             [reagent.dom :as rdom]
             [state.events]
@@ -20,6 +23,7 @@
       :articles [articles/articles-page]
       :article [article/article-page slug]
       :experiments [experiments/experiments-page]
+      :drift-constellation [drift-constellation/drift-constellation-page]
       :accessibility [accessibility/accessibility-page]
       :contact [contact/contact-page]
       [home/home-page])))

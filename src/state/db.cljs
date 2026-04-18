@@ -10,4 +10,13 @@
    :prefs {:theme :light
            :font-scale 1
            :high-contrast? false
-           :reduced-motion? false}})
+           :reduced-motion? false}
+   :drift {:loaded? false
+           :nodes []
+           :edges []
+           :hotspots []
+           :selected-node-id nil
+           :filters {:severity :all
+                     :type :all}
+           :animation-paused? false
+           :camera-reset-token 0}})

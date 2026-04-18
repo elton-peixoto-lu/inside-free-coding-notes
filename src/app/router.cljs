@@ -8,13 +8,15 @@
       (->> (remove str/blank?))))
 
 (defn parse-route [hash-value]
-  (let [[segment slug] (split-path hash-value)]
+  (let [[segment slug extra] (split-path hash-value)]
     (case segment
       "sobre" {:page :about}
       "artigos" (if slug
                   {:page :article :slug slug}
                   {:page :articles})
-      "experimentos" {:page :experiments}
+      "experimentos" (if (= slug "drift-constellation")
+                       {:page :drift-constellation :lab extra}
+                       {:page :experiments})
       "acessibilidade" {:page :accessibility}
       "contato" {:page :contact}
       {:page :home})))
@@ -26,6 +28,7 @@
     :articles "#/artigos"
     :article (str "#/artigos/" slug)
     :experiments "#/experimentos"
+    :drift-constellation "#/experimentos/drift-constellation"
     :accessibility "#/acessibilidade"
     :contact "#/contato"
     "#/"))
