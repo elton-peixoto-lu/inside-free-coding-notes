@@ -240,6 +240,19 @@ figcaption {
   background: var(--surface);
 }
 
+.drift-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.9rem;
+}
+
+.drift-summary p {
+  margin: 0;
+}
+
 .drift-controls__row {
   display: flex;
   flex-wrap: wrap;
@@ -307,6 +320,11 @@ figcaption {
 
 .drift-panel__block h3 {
   margin: 0 0 0.5rem;
+}
+
+.drift-panel__diffs {
+  margin: 0;
+  padding-left: 1rem;
 }
 
 .drift-legend {

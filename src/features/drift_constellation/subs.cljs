@@ -75,3 +75,20 @@
     {:severity :attention :label "Atencao (0.2 - 0.5)"}
     {:severity :high :label "Alto (0.5 - 0.8)"}
     {:severity :critical :label "Critico (> 0.8)"}]))
+
+(rf/reg-sub
+ :drift/summary
+ :<- [:drift/nodes]
+ :<- [:drift/hotspots]
+ (fn [[nodes hotspots] _]
+   (let [count-all (count nodes)
+         critical (count (filter #(= :critical (:severity %)) nodes))
+         avg-drift (if (pos? count-all)
+                     (/ (reduce + (map :drift-score nodes)) count-all)
+                     0.0)
+         high-risk (count (filter #(>= (:risk-score %) 0.7) nodes))]
+     {:resource-count count-all
+      :critical-count critical
+      :high-risk-count high-risk
+      :hotspot-count (count hotspots)
+      :avg-drift avg-drift})))

@@ -53,6 +53,7 @@
   (let [filters @(rf/subscribe [:drift/filters])
         selected-node @(rf/subscribe [:drift/selected-node])
         legend-items @(rf/subscribe [:drift/legend])
+        summary @(rf/subscribe [:drift/summary])
         type-options @(rf/subscribe [:drift/type-options])
         paused? @(rf/subscribe [:drift/animation-paused?])
         reset-token @(rf/subscribe [:drift/camera-reset-token])]
@@ -65,6 +66,12 @@
          [:header
           [:h1 "Drift Constellation"]
           [:p "O problema nao e so criar infraestrutura. E controlar drift, intencao e reconciliacao."]]
+         [:section.drift-summary {:aria-label "Resumo do estado de drift"}
+          [:p [:strong "Recursos visiveis: "] (:resource-count summary)]
+          [:p [:strong "Criticos: "] (:critical-count summary)]
+          [:p [:strong "Hotspots: "] (:hotspot-count summary)]
+          [:p [:strong "Risco alto: "] (:high-risk-count summary)]
+          [:p [:strong "Drift medio: "] (.toFixed (:avg-drift summary) 2)]]
          [:section.drift-layout
           [drift-canvas {:reset-token reset-token}]
           [panel/drift-side-panel {:node selected-node}]]

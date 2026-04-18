@@ -96,7 +96,16 @@
                           alpha (+ base (* 0.08 intensity (js/Math.abs (js/Math.sin (* 1.8 time)))))
                           s (+ 1 (* 0.05 (js/Math.sin (* 1.2 time))))]
                       (set! (.. halo -material -opacity) alpha)
-                      (.set (.-scale halo) s s s)))))
+                      (.set (.-scale halo) s s s)))
+                  (doseq [edge (array-seq (.-children edge-group))]
+                    (let [ud (.-userData edge)
+                          base (aget ud "base-opacity")
+                          drift (aget ud "drift")
+                          conflict? (aget ud "conflict")
+                          pulse (* (+ 0.08 (* 0.2 drift))
+                                   (js/Math.abs (js/Math.sin (* (+ 1 (* 2 drift)) time))))
+                          opacity (+ base pulse (if conflict? 0.08 0))]
+                      (set! (.. edge -material -opacity) (min 1 opacity))))))
               (.update controls)
               (.render renderer scene camera)
               (reset! frame-id (js/requestAnimationFrame animate!)))
