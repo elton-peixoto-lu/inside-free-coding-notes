@@ -111,6 +111,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Clear stale Terraform lock if present
+        run: gcloud storage rm "gs://${{ vars.TF_STATE_BUCKET }}/default.tflock" || true
+
       - name: Terraform Init
         run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
 
@@ -195,6 +198,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Clear stale Terraform lock if present
+        run: gcloud storage rm "gs://${{ vars.TF_STATE_BUCKET }}/default.tflock" || true
 
       - name: Terraform Init
         run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
