@@ -161,3 +161,30 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+## GitHub -> GCP sem chave (WIF)
+
+Para configurar Workload Identity Federation para este repo:
+
+1. Autentique no GCP com uma conta que tenha permissao no projeto `prod-461714`:
+
+```bash
+gcloud auth login pluizelton@gmail.com
+gcloud auth application-default login
+```
+
+2. Rode o setup automatizado:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/setup-wif-github.ps1
+```
+
+Esse script cria pool/provider, service account, bindings IAM e variaveis do GitHub repo.
+
+Workflow pronto:
+
+- `.github/workflows/deploy-gcp.yml`
+
+Desenho da arquitetura:
+
+- `docs/architecture.md`
