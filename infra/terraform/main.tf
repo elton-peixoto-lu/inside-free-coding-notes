@@ -42,6 +42,7 @@ resource "google_storage_bucket" "site" {
   name                        = local.effective_bucket_name
   location                    = "US"
   uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
   force_destroy               = true
 
   website {
@@ -59,6 +60,11 @@ resource "google_storage_bucket_object" "site_files" {
   name         = each.value
   source       = "${var.site_dir}/${each.value}"
   content_type = can(regex("\\.[^.]+$", each.value)) ? lookup(local.content_type_map, regex("\\.[^.]+$", each.value), "application/octet-stream") : "application/octet-stream"
+  cache_control = (
+    can(regex("\\.html$", each.value)) || can(regex("\\.edn$", each.value))
+  ) ? "no-store, max-age=0" : (
+    can(regex("\\.(js|css)$", each.value))
+  ) ? "public, max-age=300" : "public, max-age=86400"
 }
 
 resource "google_compute_backend_bucket" "site" {

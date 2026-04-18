@@ -34,8 +34,10 @@ env:
   TF_WORKING_DIR: infra/terraform
   GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+  TF_VAR_bucket_name: labs-insidefreecoding-com-br-prod-461714
   TF_VAR_enable_https: "true"
   TF_VAR_domains: '["labs.insidefreecoding.com.br"]'
+  TF_VAR_managed_zone: ${{ vars.GCP_DNS_ZONE }}
 
 jobs:
   plan:
@@ -162,3 +164,11 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
+
+      - name: Invalidate Cloud CDN cache
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache inside-free-coding-notes-url-map --path="/index.html" --host="labs.insidefreecoding.com.br" --async
+          gcloud compute url-maps invalidate-cdn-cache inside-free-coding-notes-url-map --path="/js/*" --host="labs.insidefreecoding.com.br" --async
+          gcloud compute url-maps invalidate-cdn-cache inside-free-coding-notes-url-map --path="/styles/*" --host="labs.insidefreecoding.com.br" --async
+          gcloud compute url-maps invalidate-cdn-cache inside-free-coding-notes-url-map --path="/content/*" --host="labs.insidefreecoding.com.br" --async
+          gcloud compute url-maps invalidate-cdn-cache inside-free-coding-notes-url-map --path="/assets/*" --host="labs.insidefreecoding.com.br" --async
