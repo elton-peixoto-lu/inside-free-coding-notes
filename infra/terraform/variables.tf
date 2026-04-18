@@ -44,3 +44,9 @@ variable "managed_zone" {
   type        = string
   default     = ""
 }
+
+variable "cloud_run_image" {
+  description = "Imagem do Cloud Run que serve o site (ex: us-central1-docker.pkg.dev/projeto/repo/site:sha)."
+  type        = string
+  default     = ""
+}

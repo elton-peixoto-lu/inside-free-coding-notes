@@ -1,7 +1,9 @@
 resource "google_project_service" "required" {
   for_each = toset([
     "compute.googleapis.com",
-    "storage.googleapis.com"
+    "storage.googleapis.com",
+    "run.googleapis.com",
+    "artifactregistry.googleapis.com"
   ])
 
   project            = var.project_id
@@ -62,15 +64,66 @@ resource "google_storage_bucket_object" "site_files" {
   content_type = can(regex("\\.[^.]+$", each.value)) ? lookup(local.content_type_map, regex("\\.[^.]+$", each.value), "application/octet-stream") : "application/octet-stream"
   cache_control = (
     can(regex("\\.html$", each.value)) || can(regex("\\.edn$", each.value))
-  ) ? "no-store, max-age=0" : (
+    ) ? "no-store, max-age=0" : (
     can(regex("\\.(js|css)$", each.value))
   ) ? "public, max-age=300" : "public, max-age=86400"
 }
 
-resource "google_compute_backend_bucket" "site" {
-  name        = "${var.site_name}-backend"
-  bucket_name = google_storage_bucket.site.name
-  enable_cdn  = true
+resource "google_service_account" "run_runtime" {
+  account_id   = "ifcnotes-run-runtime"
+  display_name = "Cloud Run runtime for ${var.site_name}"
+}
+
+resource "google_storage_bucket_iam_member" "run_can_read_site_bucket" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.run_runtime.email}"
+}
+
+resource "google_cloud_run_v2_service" "site" {
+  name     = "${var.site_name}-run"
+  location = var.region
+  ingress  = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    service_account = google_service_account.run_runtime.email
+    containers {
+      image = var.cloud_run_image
+      env {
+        name  = "SITE_BUCKET"
+        value = google_storage_bucket.site.name
+      }
+    }
+  }
+
+  depends_on = [google_project_service.required]
+}
+
+resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
+  name     = google_cloud_run_v2_service.site.name
+  location = google_cloud_run_v2_service.site.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+resource "google_compute_region_network_endpoint_group" "site" {
+  name                  = "${var.site_name}-neg"
+  region                = var.region
+  network_endpoint_type = "SERVERLESS"
+  cloud_run {
+    service = google_cloud_run_v2_service.site.name
+  }
+}
+
+resource "google_compute_backend_service" "site" {
+  name                  = "${var.site_name}-backend"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  enable_cdn            = true
+
+  backend {
+    group = google_compute_region_network_endpoint_group.site.id
+  }
 }
 
 resource "google_compute_global_address" "site" {
@@ -79,7 +132,7 @@ resource "google_compute_global_address" "site" {
 
 resource "google_compute_url_map" "site" {
   name            = "${var.site_name}-url-map"
-  default_service = google_compute_backend_bucket.site.id
+  default_service = google_compute_backend_service.site.id
 }
 
 resource "google_compute_target_http_proxy" "site" {
