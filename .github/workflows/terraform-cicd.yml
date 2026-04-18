@@ -106,6 +106,7 @@ jobs:
         run: |
           docker build -f cloudrun/Dockerfile -t "${TF_VAR_cloud_run_image}" .
           docker push "${TF_VAR_cloud_run_image}"
+        working-directory: .
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -190,6 +191,7 @@ jobs:
         run: |
           docker build -f cloudrun/Dockerfile -t "${TF_VAR_cloud_run_image}" .
           docker push "${TF_VAR_cloud_run_image}"
+        working-directory: .
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
