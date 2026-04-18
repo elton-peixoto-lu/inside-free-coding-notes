@@ -183,7 +183,20 @@ Esse script cria pool/provider, service account, bindings IAM e variaveis do Git
 
 Workflow pronto:
 
-- `.github/workflows/deploy-gcp.yml`
+- `.github/workflows/terraform-cicd.yml`
+
+Variaveis obrigatorias no repo GitHub (`Settings > Secrets and variables > Actions > Variables`):
+
+- `GCP_PROJECT_ID`
+- `GCP_WIF_PROVIDER`
+- `GCP_SERVICE_ACCOUNT`
+- `TF_STATE_BUCKET` (bucket GCS do estado remoto do Terraform)
+
+Exemplo para criar bucket de state:
+
+```bash
+gcloud storage buckets create gs://prod-461714-tfstate-notes --project=prod-461714 --location=US --uniform-bucket-level-access
+```
 
 Desenho da arquitetura:
 
