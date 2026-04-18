@@ -78,7 +78,7 @@ resource "google_compute_backend_bucket" "site" {
 }
 
 resource "google_service_account" "run_runtime" {
-  account_id   = "ifcnotes-run-runtime"
+  account_id   = "ifcnotes-run-${random_id.suffix.hex}"
   display_name = "Cloud Run runtime for ${var.site_name}"
 }
 
