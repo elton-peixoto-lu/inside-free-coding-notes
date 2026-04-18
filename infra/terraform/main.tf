@@ -69,6 +69,14 @@ resource "google_storage_bucket_object" "site_files" {
   ) ? "public, max-age=300" : "public, max-age=86400"
 }
 
+resource "google_compute_backend_bucket" "site" {
+  # Mantido durante a migracao para Cloud Run para evitar conflito de destroy
+  # enquanto o URL map e atualizado para o backend service novo.
+  name        = "${var.site_name}-backend"
+  bucket_name = google_storage_bucket.site.name
+  enable_cdn  = true
+}
+
 resource "google_service_account" "run_runtime" {
   account_id   = "ifcnotes-run-runtime"
   display_name = "Cloud Run runtime for ${var.site_name}"
@@ -116,7 +124,7 @@ resource "google_compute_region_network_endpoint_group" "site" {
 }
 
 resource "google_compute_backend_service" "site" {
-  name                  = "${var.site_name}-backend"
+  name                  = "${var.site_name}-backend-svc"
   protocol              = "HTTP"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   enable_cdn            = true
