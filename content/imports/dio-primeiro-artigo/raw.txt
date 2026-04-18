@@ -1,0 +1,235 @@
+--- PAGE 1 ---
+Elton Luiz
+15/06/2025 14:47
+Benchmark de Concatenação de Strings em Clojure
+#Estrutura de dados
+O que é um Benchmark?
+Um benchmark é um teste prático que mede o desempenho de um algoritmo, função, sistema ou componente, em termos de tempo, uso
+de memória, ou outros recursos importantes.
+No desenvolvimento de software, benchmarks ajudam a comparar abordagens diferentes para resolver um mesmo problema,
+identificando qual delas é mais rápida, eficiente ou adequada para determinada situação.
+O que é StringBuilder?
+StringBuilder é uma classe do Java que oferece uma forma eficiente de construir strings por meio de um buffer mutável. Diferentemente
+da concatenação direta de strings, que cria uma nova string a cada operação, o StringBuilder permite que múltiplas concatenações sejam
+feitas no mesmo buffer, evitando cópias repetidas e melhorando significativamente a performance.
+Objetivo
+Este benchmark compara o desempenho de duas abordagens para concatenação de strings em Clojure:
+reduce str (concatenação ingênua)
+StringBuilder (concatenação eficiente)
+Motivação
+Introdução
+Sempre achei interessantes experimentos de performance — especialmente aqueles que colocam lado a lado abordagens diferentes para
+resolver um mesmo problema. Foi esse tipo de curiosidade que me motivou a testar o impacto real de diferentes formas de concatenar
+strings em Clojure.
+Considerando que Lisp — a família de linguagens da qual Clojure faz parte — tem uma longa história relacionada à gestão eficiente de
+memória, achei relevante fazer esse benchmark para compartilhar a experiência.
+Dessa forma, conseguimos tomar decisões técnicas mais fundamentadas, evitando escolhas baseadas apenas em achismos ou suposições.
+
+5/5
+
+MATRICULE-SE
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+1/6
+
+
+--- PAGE 2 ---
+Algoritmo (Passo a Passo Funcional)
+1. Concatenação ingênua (reduce str)
+Pseudocódigo:
+Comece com uma string vazia.
+Para cada elemento da lista de partes:
+Concatene a string acumulada com o próximo elemento usando str.
+Retorne a string final.
+Resumo:
+A cada passo, é criada uma nova string, copiando todo o conteúdo anterior.
+O custo cresce rapidamente conforme o número de partes aumenta.
+2. Concatenação eficiente (StringBuilder)
+Pseudocódigo:
+Crie um buffer mutável (StringBuilder).
+Para cada elemento da lista de partes:
+Adicione (append) o elemento ao buffer.
+Ao final, converta o buffer para uma string comum.
+Resumo:
+O buffer é reutilizado durante todo o processo.
+O custo cresce linearmente com o número de partes.
+Referências de Medição
+Biblioteca: Criterium — ferramenta robusta para benchmarks estatísticos em Clojure.
+Documentação: Criterium no cljdoc, StringBuilder (Java), reduce (Clojure), str (Clojure).
+Funções testadas
+(defn using-str-concat [parts]
+(reduce str "" parts))
+(defn using-string-builder [parts]
+(let [sb (StringBuilder.)]
+  (doseq [part parts]
+    (.append sb part))
+  (.toString sb)))
+Metodologia
+Entrada:
+(def parts (repeat 100000 "abc"))
+100.000 strings de 3 caracteres cada.
+Execução:
+Cada função é executada usando criterium.core/quick-benchmark.
+Medição:
+Resultados apresentados em nanossegundos (ns) e em escala logarítmica para facilitar a comparação.
+Reprodutibilidade:
+Rode o código em qualquer ambiente Clojure com as dependências indicadas, em diferentes máquinas, JVMs ou tamanhos de
+entrada para comparar resultados.
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+2/6
+
+
+--- PAGE 3 ---
+Código-fonte completo
+(ns clojure-benchmarks.core
+(:require [criterium.core :as c]
+          [incanter.core :as i]
+          [incanter.charts :as charts]))
+(def parts (repeat 100000 "abc"))
+(defn using-str-concat [parts]
+(reduce str "" parts))
+(defn using-string-builder [parts]
+(let [sb (StringBuilder.)]
+  (doseq [part parts]
+    (.append sb part))
+  (.toString sb)))
+(defn log10 [x]
+(Math/log10 (max x 1e-9))) ; evita log(0)
+(defn -main [& args]
+(println "Benchmark de concatenação de strings em Clojure\n")
+(println "reduce str:")
+(let [res1 (c/quick-benchmark (using-str-concat parts) {})]
+  (c/report-result res1)
+  (println "Valor bruto :mean reduce str:" (:mean res1))
+  (println "\nStringBuilder:")
+  (let [res2 (c/quick-benchmark (using-string-builder parts) {})]
+    (c/report-result res2)
+    (println "Valor bruto :mean StringBuilder:" (:mean res2))
+    (let [mean1 (when (and (map? res1) (vector? (:mean res1))) (first (:mean res1)))
+          mean2 (when (and (map? res2) (vector? (:mean res2))) (first (:mean res2)))]
+      (when (and (number? mean1) (number? mean2))
+        (let [labels ["reduce str" "StringBuilder"]
+              vals   [(double mean1) (double mean2)]
+              logvals (mapv log10 vals)
+              chart  (charts/bar-chart labels logvals
+                                      :title "Concatenação de Strings (log₁₀ ns)"
+                                      :y-label "log₁₀ Tempo médio (ns)")]
+          (i/view chart)
+          (println "\nValores médios (ns):")
+          (println (format "reduce str    : %.2f ns" (first vals)))
+          (println (format "StringBuilder : %.2f ns" (second vals)))))))))
+Resultados Obtidos
+reduce str:
+Execution time mean: ~717 ms
+Alto custo por causa da criação de muitas strings intermediárias
+StringBuilder:
+Execution time mean: ~855 µs
+Muito mais rápido, custo linear e buffer mutável
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+3/6
+
+
+--- PAGE 4 ---
+Gráfico
+Gráfico gerado pelo Incanter mostrando a comparação do tempo médio (em escala logarítmica)
+O que o gráfico mostra?
+O título: "Concatenação de Strings (log₁₀ ns)" indica que o gráfico compara o tempo de concatenação de strings.
+O eixo y é o log₁₀ do tempo médio (em nanosegundos) gasto para fazer a concatenação.
+O eixo x mostra dois métodos usados: "reduce str" e "StringBuilder".
+As barras vermelhas representam o valor do tempo médio (no eixo y, em escala logarítmica).
+Como interpretar?
+A escala é logarítmica na base 10 (log₁₀), então um valor de -1 equivale a 10⁻¹ = 0,1 ns, um valor de -2 equivale a 10⁻² = 0,01 ns, e
+assim por diante.
+O método reduce str tem um tempo médio perto de -0.1 (ou seja, aproximadamente 0.8 ns).
+O método StringBuilder tem um tempo médio perto de -3 (ou seja, aproximadamente 0.001 ns).
+Como reproduzir e tirar provas reais
+1. Clone o repositório ou copie o código acima.
+2. Adicione as dependências no seu project.clj:
+clojure
+CopyEdit
+[criterium "0.4.6"]
+[incanter "1.9.3"]
+1. Rode o projeto com lein run ou pelo REPL.
+2. Altere o valor de parts para testar diferentes tamanhos de entrada.
+3. Compare os resultados em diferentes ambientes.
+4. Use o gráfico para comunicar visualmente a diferença de desempenho.
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+4/6
+
+
+--- PAGE 5 ---
+Conclusão
+Os resultados deste benchmark deixam claro que a escolha do algoritmo de concatenação de strings faz toda a diferença em aplicações
+que lidam com grandes volumes de dados.
+A abordagem ingênua com reduce str é simples, mas ineficiente para listas grandes, pois cria muitas cópias intermediárias e tem
+custo quadrático.
+O uso do StringBuilder (ou funções que o utilizam internamente, como clojure.string/join) é muito mais eficiente, com custo linear.
+Além disso, utilizar ferramentas como Criterium e visualizar os resultados em escala logarítmica são práticas fundamentais para
+identificar e comunicar diferenças de performance relevantes.
+Portanto, ao desenvolver em Clojure (ou em qualquer linguagem JVM), prefira abordagens otimizadas para manipulação de strings quando
+a performance for um requisito.
+Referências
+1. Criterium – Biblioteca de benchmarking para Clojure
+GitHub: https://github.com/hugoduncan/criterium
+Documentação: https://cljdoc.org/d/criterium/criterium/0.4.6/api/criterium.core
+1. Incanter – Ambiente de computação estatística e gráficos estilo R para Clojure
+GitHub: https://github.com/incanter/incanter
+Documentação de gráficos: https://incanter.github.io/incanter/charts-api.html
+1. StringBuilder ( Java) – Classe para construção eficiente de strings mutáveis
+Documentação oficial: https://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html
+1. Função reduce (Clojure) – Função para redução de coleções
+Documentação: https://clojuredocs.org/clojure.core/reduce
+1. Função str (Clojure) – Função para conversão e concatenação de strings
+Documentação: https://clojuredocs.org/clojure.core/str
+1
+37
+Comentários (2)
+Código de conduta
+Elton Luiz - 30/06/2025 13:47
+O maior desafio ao implementar esse tipo de otimização em projetos mais complexos está em equilibrar ganho de
+performance com clareza e manutenibilidade do código. Em sistemas maiores, nem sempre é óbvio onde aplicar melhorias —
+e muitas vezes, tentar otimizar prematuramente pode até prejudicar a legibilidade ou introduzir bugs sutis, especialmente
+quando envolvemos estruturas mutáveis como StringBuilder ou técnicas como memoize.
+Normal
+
+
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+5/6
+
+
+--- PAGE 6 ---
+Além disso, a escolha da estrutura ou estratégia certa depende fortemente do contexto: volume de dados, concorrência,
+frequência de chamadas, e até dos requisitos de desempenho definidos pelo time de produto (como SLOs). Ou seja, o desafio
+real é saber quando vale a pena otimizar, e onde concentrar o esforço.
+Sobre expandir o benchmark: sim, é algo que venho considerando. Operações como filtragem, transformação e agregação de
+grandes coleções, especialmente usando pipelines funcionais ou transducers, são candidatas naturais. Outro caminho
+interessante é testar comportamento sob carga em fluxos contínuos de dados, algo mais próximo do tempo real, onde até
+pequenas otimizações podem gerar impacto perceptível — especialmente em sistemas que priorizam UX ou têm latência
+crítica.
+0
+DIO Community - 16/06/2025 16:15
+Sidney, seu benchmark sobre a concatenação de strings em Clojure oferece uma visão essencial para otimizar o desempenho
+de operações comuns em projetos de software. Ao comparar o método ingênuo com o uso de StringBuilder, você destacou uma
+diferença crítica de performance que muitas vezes passa despercebida, mas que pode fazer toda a diferença em sistemas que
+manipulam grandes volumes de dados.
+Na DIO, buscamos capacitar nossos desenvolvedores com o conhecimento técnico necessário para tomar decisões embasadas
+e eficientes, e artigos como o seu são essenciais para orientar essa jornada. O uso de ferramentas como o Criterium e a
+apresentação visual dos resultados através do gráfico são práticas fundamentais para aqueles que desejam melhorar a
+performance de suas aplicações de maneira prática e objetiva.
+Entre os pontos que você abordou, qual você considera o maior desafio ao implementar essa otimização em projetos mais
+complexos? Além disso, já pensou em expandir esse benchmark para outras operações comuns, como a manipulação de
+grandes coleções ou o processamento de dados em tempo real?
+1
+4/18/26, 2:17 PM
+DIO | Codifique o seu futuro global agora
+https://w eb.dio.me/articles/benchmark-de-concatenacao-de-strings-em-clojure-75b017975756?back=/articles
+6/6

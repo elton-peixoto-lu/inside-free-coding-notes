@@ -1,0 +1,10 @@
+node_modules/
+.shadow-cljs/
+public/js/
+out/
+npm-debug.log*
+.cpcache/
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*

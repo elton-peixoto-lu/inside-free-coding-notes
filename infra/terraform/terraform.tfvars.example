@@ -1,0 +1,13 @@
+project_id   = "seu-projeto-gcp"
+region       = "us-central1"
+site_name    = "inside-free-coding-notes"
+site_dir     = "../../public"
+bucket_name  = ""
+
+enable_https = true
+domains = [
+  "labs.insidefreecoding.com.br"
+]
+
+# Use apenas se seu DNS estiver no Cloud DNS.
+managed_zone = ""

@@ -1,0 +1,28 @@
+{:slug "paper-short-semantic-html-reading"
+ :title "Paper Curto: HTML Semantico para Leitura Tecnica"
+ :summary "Hipoteses e evidencias sobre como semantica melhora navegacao assistiva em artigos longos."
+ :date "2026-02-01"
+ :tags ["a11y" "semantica" "html"]
+ :category :paper
+ :reading-time "12 min"
+ :type :paper
+ :toc [{:id "contexto" :label "Contexto"}
+       {:id "metodologia" :label "Metodologia"}
+       {:id "achados" :label "Achados"}
+       {:id "conclusao" :label "Conclusao"}
+       {:id "reproducao" :label "Como reproduzir"}
+       {:id "referencias" :label "Referencias"}]
+ :methodology "Revisao de 12 paginas tecnicas com e sem landmarks semanticos, medindo tempo de orientacao via leitor de tela."
+ :diagram-description "Diagrama textual: dois grupos de paginas (semanticas e genericas) alimentam metricas de tempo e erro."
+ :code "<main>\n  <article>\n    <header>...</header>\n    <section aria-labelledby=\"metodologia\">...</section>\n  </article>\n</main>"
+ :body ["A principal diferenca nao apareceu em velocidade de leitura, mas em orientacao."
+        "Landmarks e hierarquia de headings reduziram erros de navegacao em tarefas de busca de secao."
+        "Skip link e foco visivel reduziram abandonos em navegacao por teclado."]
+ :conclusion "Semantica nao e detalhe de SEO; e infraestrutura de compreensao e autonomia."
+ :reproduce ["Criar duas versoes da mesma pagina."
+             "Executar tarefas guiadas com NVDA ou VoiceOver."
+             "Registrar tempo para encontrar metodologia e conclusao."]
+ :references [{:label "W3C WAI Page Structure"
+               :url "https://www.w3.org/WAI/tutorials/page-structure/"}
+              {:label "MDN Semantic HTML"
+               :url "https://developer.mozilla.org/en-US/docs/Glossary/Semantics"}]}

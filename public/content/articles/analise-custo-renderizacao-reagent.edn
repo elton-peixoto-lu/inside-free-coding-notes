@@ -1,0 +1,28 @@
+{:slug "analise-custo-renderizacao-reagent"
+ :title "Analise: Custo de Renderizacao em Reagent"
+ :summary "Onde o custo real aparece em telas de leitura e como reduzir rerender sem complexidade desnecessaria."
+ :date "2026-01-15"
+ :tags ["reagent" "render" "analise"]
+ :category :analysis
+ :reading-time "15 min"
+ :type :analysis
+ :toc [{:id "contexto" :label "Contexto"}
+       {:id "metodologia" :label "Metodologia"}
+       {:id "achados" :label "Achados"}
+       {:id "conclusao" :label "Conclusao"}
+       {:id "reproducao" :label "Como reproduzir"}
+       {:id "referencias" :label "Referencias"}]
+ :methodology "Instrumentamos componentes com marcadores de render e observamos interacoes de filtro em 5k itens sinteticos."
+ :diagram-description "Diagrama textual: evento de filtro atualiza db, subs recalculam selecao, componentes de lista rerenderizam."
+ :code "(defn article-list []\n  (let [items @(rf/subscribe [:filtered-publications])]\n    [:ul (for [item items] ^{:key (:slug item)} [row item])]))"
+ :body ["O custo dominante veio da renderizacao de lista completa em mudancas pequenas de filtro."
+        "Ajustes simples em granularidade de subscription trouxeram ganho significativo."
+        "Nao usamos memoizacao agressiva; mantivemos clareza e previsibilidade."]
+ :conclusion "Comece por estrutura de dados e subscriptions antes de otimizar componentes."
+ :reproduce ["Gerar dataset sintetico com 5k registros."
+             "Ativar contador de render por item."
+             "Aplicar filtros por tag e categoria e comparar metricas."]
+ :references [{:label "Reagent FAQ"
+               :url "https://github.com/reagent-project/reagent/blob/master/doc/FAQ/README.md"}
+              {:label "re-frame Flow Mechanics"
+               :url "https://day8.github.io/re-frame/flow-mechanics/"}]}
