@@ -65,11 +65,11 @@
          [:header
           [:h1 "Drift Constellation"]
           [:p "O problema nao e so criar infraestrutura. E controlar drift, intencao e reconciliacao."]]
+         [:section.drift-layout
+          [drift-canvas {:reset-token reset-token}]
+          [panel/drift-side-panel {:node selected-node}]]
          [:section.drift-controls {:aria-label "Controles de visualizacao"}
           [controls/severity-controls (:severity filters)]
           [controls/type-controls (:type filters) type-options]
           [controls/action-controls paused?]
-          [controls/legend legend-items]]
-         [:section.drift-layout
-          [drift-canvas {:reset-token reset-token}]
-          [panel/drift-side-panel {:node selected-node}]]])})))
+          [controls/legend legend-items]]])})))
