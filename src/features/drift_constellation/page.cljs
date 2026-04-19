@@ -59,6 +59,7 @@
   (let [filters* (rf/subscribe [:drift/filters])
         selected-node* (rf/subscribe [:drift/selected-node])
         legend-items* (rf/subscribe [:drift/legend])
+        doc* (rf/subscribe [:publication-by-slug "drift-constellation-documentacao"])
         summary* (rf/subscribe [:drift/summary])
         type-options* (rf/subscribe [:drift/type-options])
         paused?* (rf/subscribe [:drift/animation-paused?])
@@ -77,6 +78,7 @@
         (let [filters @filters*
               selected-node @selected-node*
               legend-items @legend-items*
+              doc @doc*
               summary @summary*
               type-options @type-options*
               paused? @paused?*
@@ -101,8 +103,26 @@
            [:section.drift-controls {:aria-label "Controles de visualizacao"}
             [controls/severity-controls (:severity filters)]
             [controls/type-controls (:type filters) type-options]
-            [controls/action-controls paused? running? tick]
-            [controls/legend legend-items]]
+           [controls/action-controls paused? running? tick]
+           [controls/legend legend-items]]
+           [:section.drift-guide {:aria-label "Guia de interpretacao do grafico"}
+            [:h2 "Como interpretar o grafico"]
+            (if doc
+              [:<>
+               (for [paragraph (:body doc)]
+                 ^{:key paragraph}
+                 [:p paragraph])
+               [:ul
+                (for [item (:interpretation doc)]
+                  ^{:key item}
+                  [:li item])]
+               [:details
+                [:summary "Referencias oficiais"]
+                [:ul
+                 (for [{:keys [label url]} (:references doc)]
+                   ^{:key url}
+                   [:li [:a {:href url :target "_blank" :rel "noreferrer"} label]])]]]
+              [:p "Carregando documentacao EDN do Drift..."])]
            [:section.drift-timeline {:aria-label "Reconcile Timeline"}
             [:h2 "Reconcile Timeline"]
             (if (seq timeline)

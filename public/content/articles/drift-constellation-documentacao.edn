@@ -1,0 +1,29 @@
+{:slug "drift-constellation-documentacao"
+ :title "Documentacao: Drift Constellation"
+ :summary "Guia de interpretacao da simulacao de drift, reconcile e dependencias."
+ :date "2026-04-19"
+ :tags ["drift" "iac" "gitops" "kubernetes" "terraform"]
+ :category :analysis
+ :reading-time "8 min"
+ :type :analysis
+ :body ["Drift e a diferenca entre o estado desejado (desired) e o estado observado (observed)."
+        "Em plataformas declarativas, o alvo e convergir continuamente observed -> desired via loops de reconcile."
+        "O objetivo da simulacao e evidenciar risco operacional, efeito em cascata e progresso de convergencia."]
+ :interpretation ["No 3D representa um recurso de plataforma."
+                  "Cor, pulso e brilho indicam intensidade de drift."
+                  "Jitter sutil aponta condicoes criticas e instabilidade."
+                  "Arestas mostram dependencias; linhas mais vibrantes sugerem conflito."
+                  "Hotspots destacam agrupamentos com drift elevado."
+                  "Timeline mostra passos de reconcile e campos alterados em cada tick."]
+ :references [{:label "Kubernetes Controllers (control loop)"
+               :url "https://kubernetes.io/docs/concepts/architecture/controller/"}
+              {:label "Kubernetes Deployments (desired state)"
+               :url "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"}
+              {:label "Terraform drift detection (HashiCorp)"
+               :url "https://developer.hashicorp.com/terraform/tutorials/cloud/drift-detection"}
+              {:label "Terraform detecting drift (SDKv2)"
+               :url "https://developer.hashicorp.com/terraform/plugin/sdkv2/best-practices/detecting-drift"}
+              {:label "Argo CD OutOfSync / auto-sync / self-heal"
+               :url "https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/"}
+              {:label "AWS CloudFormation drift detection"
+               :url "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html"}]}
