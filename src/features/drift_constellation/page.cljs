@@ -6,6 +6,22 @@
             [features.drift-constellation.components.panel :as panel]
             [features.drift-constellation.scene.core :as scene]))
 
+(defn live-reading-copy [selected-node summary]
+  (cond
+    selected-node
+    (str "Recurso em foco: " (:label selected-node)
+         ". Severidade " (name (:severity selected-node))
+         " com drift " (.toFixed (:drift-score selected-node) 2) ".")
+
+    (pos? (:critical-count summary))
+    (str "Ha " (:critical-count summary) " recursos criticos visiveis. Comece pelos halos e pelas linhas mais vibrantes.")
+
+    (pos? (:resource-count summary))
+    "A topologia esta relativamente estavel. Use filtros para isolar um tipo de recurso."
+
+    :else
+    "Nenhum recurso corresponde aos filtros atuais."))
+
 (defn drift-canvas []
   (let [scene-data* (rf/subscribe [:drift/scene-data])
         selected-node* (rf/subscribe [:drift/selected-node])
@@ -98,7 +114,15 @@
             [:p [:strong "Drift medio: "] (.toFixed (:avg-drift summary) 2)]
             [:p [:strong "Convergencia: "] (.toFixed (:reconcile-progress summary) 1) "%"]]
            [:section.drift-layout
-            [drift-canvas {:reset-token reset-token}]
+            [:div.drift-canvas-wrap
+             [drift-canvas {:reset-token reset-token}]
+             [:aside.drift-canvas-overlay {:aria-label "Leitura rapida da cena"}
+              [:p.drift-canvas-overlay__eyebrow "Leitura rapida"]
+              [:p (live-reading-copy selected-node summary)]
+              [:ul
+               [:li "Ponto = recurso"]
+               [:li "Halo = hotspot"]
+               [:li "Linha vibrante = dependencia sob tensao"]]]]
             [panel/drift-side-panel {:node selected-node}]]
            [:section.drift-controls {:aria-label "Controles de visualizacao"}
             [controls/severity-controls (:severity filters)]

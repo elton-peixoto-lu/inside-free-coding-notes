@@ -271,10 +271,44 @@ figcaption {
   gap: 1rem;
 }
 
+.drift-canvas-wrap {
+  position: relative;
+}
+
 .drift-canvas {
   min-height: 28rem;
   border: 1px solid var(--border);
   background: #101318;
+}
+
+.drift-canvas-overlay {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: min(22rem, calc(100% - 2rem));
+  background: rgba(10, 14, 20, 0.82);
+  color: #f5f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.85rem 0.95rem;
+  backdrop-filter: blur(6px);
+}
+
+.drift-canvas-overlay p,
+.drift-canvas-overlay li {
+  max-width: none;
+}
+
+.drift-canvas-overlay ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1rem;
+}
+
+.drift-canvas-overlay__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a8c3ff;
 }
 
 .drift-panel {
@@ -292,6 +326,25 @@ figcaption {
 .drift-panel__meta {
   color: var(--muted);
   margin-top: 0;
+}
+
+.drift-panel__callout {
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.theme-dark .drift-panel__callout {
+  background: #0f1317;
+}
+
+.drift-panel__callout p {
+  margin: 0.2rem 0;
+}
+
+.drift-panel__callout-label {
+  font-weight: 700;
 }
 
 .drift-panel__scores,
@@ -359,6 +412,16 @@ figcaption {
   gap: 0.4rem;
 }
 
+.drift-guide {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.9rem;
+}
+
+.drift-guide h2 {
+  margin-top: 0;
+}
+
 .drift-severity-dot {
   display: inline-block;
   width: 0.75rem;
@@ -385,6 +448,12 @@ figcaption {
 @media (max-width: 980px) {
   .drift-layout {
     grid-template-columns: 1fr;
+  }
+
+  .drift-canvas-overlay {
+    position: static;
+    width: auto;
+    margin-top: 0.75rem;
   }
 }
 
